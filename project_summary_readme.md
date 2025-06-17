@@ -1,12 +1,12 @@
 # README: 비만 유전자 기반 체중 감소 예측 프로젝트
 
-## 🎉 프로젝트 개요
+## <프로젝트 개요>
 
 - **목표**: 비만 관련 유전자 발현 정보를 기반으로 체중, BMI, 체지방률, 순수지방량 등 체성분 변화량을 예측하는 머신러닝 모델 개발
 - **기반 논문**: *Adipose tissue gene expression is differentially regulated with different rates of weight loss in overweight and obese humans* (2017)
 - **데이터셋 구성**: GEO 마이크로어레이 발현 데이터 + 메타데이터 + 체성분 변화량 (3시점)
 
-## 📊 사용한 기술 스택 및 주요 라이브러리
+## <사용한 기술 스택 및 주요 라이브러리>
 
 - **데이터 처리**: `pandas`, `numpy`, `GEOparse`, `sqlite3`
 - **시각화**: `matplotlib`, `seaborn`, `plotly`
@@ -16,21 +16,21 @@
 - **차원 축소**: PCA
 - **데이터 증강**: `KMeans` 기반 군집 + 노이즈 추가
 
-## 📂 파일별 요약
+## <파일별 요약>
 
 ### 02\_data\_download.ipynb
 
 - 논문 기반으로 GEO 데이터셋 선정
 - GEOparse를 활용해 platform 유전자 정보, 각 실험자에 대한 메타데이터, expression 파일 다운로드
 
-### 🧬 03\_sqlite\_db\_build.ipynb 요약
+### 03\_sqlite\_db\_build.ipynb 요약
 
-#### 📌 목적
+#### <목적>
 
 - GEO에서 수집한 유전자 발현 데이터, 피험자 메타데이터, 체성분 변화를 정규화하여 SQLite 데이터베이스로 통합
 - 시점 간 변화량 계산과 조인을 쉽게 하기 위한 구조 설계
 
-#### 📂 주요 테이블 구성
+#### <주요 테이블 구성>
 
 | 테이블명                 | 설명                                               |
 | -------------------- | ------------------------------------------------ |
@@ -41,16 +41,16 @@
 | weight\_bmi\_changes | 체성분 변화량 및 주당 변화량(rate) 계산                        |
 | platform             | 마이크로어레이 플랫폼상의 유전자 정보                             |
 
-#### ⏱️ 시점 구분 및 변화량 계산
+#### <시점 구분 및 변화량 계산>
 
 - `time_point`: at\_study\_start, end\_of\_diet, end\_of\_stable → 시점 A, B, C로 정의
 - treatment에 따라 기간 상이: LCD 12주, VLCD 5주 → 주당 변화량 계산 포함
 
-#### 🔗 테이블 간 연결 방식
+#### <테이블 간 연결 방식>
 
 - `subject_id`, `gene_id`를 기준으로 테이블 간 조인 가능 -衍生 테이블(`expression_change`, `weight_bmi_changes`)은 시점 간 차이 분석용
 
-#### 🧠 요약 정리
+#### <요약 정리>
 
 - 실험 디자인(기간 차이)을 반영한 rate per week 계산으로 정밀한 예측 구조 구성
 
@@ -59,13 +59,13 @@
 - 유전자 vs 결과지표 간 피어슨 상관계수 분석
 - 초기엔 순수지방량(pure\_fat)이 가장 예측력(R²) 높음 → 이후 결과 달라짐
 
-#### 📊 모델 예측 성능 비교
+#### <모델 예측 성능 비교>
 
 - RandomForestRegressor: R² = 0.79
 - XGBRegressor: R² = 0.93
 - XGB+KFold: R² = 0.41 (과적합 추정)
 
-### 🧬 SHAP 분석 (비만 유전자 12개)
+### <SHAP 분석 (비만 유전자 12개)>
 
 - **LEP, NEGR1, ADIPOQ**가 순수지방량 예측에 유의미한 기여
 - LEP: 체지방량 조절 호르몬 / NEGR1: 신경 성장 조절 / ADIPOQ: 항염 및 인슐린 민감도 개선
@@ -75,13 +75,13 @@
 
 - 메타데이터가 유전자 발현에 미치는 영향 예측 (MultiOutputRegressor 기반)
 
-#### 🔍 SHAP 기반 상호작용 인사이트
+#### <SHAP 기반 상호작용 인사이트>
 
 1. **Feature-wise 평균 SHAP**: `height_cm`, `base_pure_fat_kg`, `base_body_fat_pct`, `base_weight_kg` 등 중요 / `sex_male` 영향 거의 없음
 2. **Z-score SHAP (feature 기준)**: `MC4R`, `LEP`, `BDNF`가 특정 feature에 민감
 3. **Z-score SHAP (gene 기준)**: `PPARG`, `UCP2`, `GNPDA2`, `ADIPOQ`가 다양한 피처에서 반응
 
-#### 🧠 요약
+#### <요약>
 
 - 민감 유전자: `MC4R`, `LEP`, `BDNF`, `PPARG`
 - 주요 메타 피처: `키`, `기초 순수지방량`, `BMI`, `체지방률`
@@ -90,7 +90,7 @@
 
 - 메타데이터 → 결과지표 예측에 대한 SHAP 분석
 
-#### 📊 주요 인사이트
+#### <주요 인사이트>
 
 1. `base_weight_kg`, `base_body_fat_pct`가 예측에 가장 큰 기여
 2. 결과지표별 민감 피처:
@@ -99,7 +99,7 @@
    - 체지방률: `base_body_fat_pct`
    - 순수지방량: `base_weight_kg`, `base_pure_fat_kg`
 
-#### 🧠 요약
+#### <요약>
 
 - 성별 영향도는 미미
 - 예측 대상에 따라 민감한 feature가 다르므로 feature 선택 중요
@@ -123,7 +123,7 @@
   - StandardScaler → PCA 차원 축소
   - Optuna 하이퍼파라미터 튜닝 적용
 
-#### ✅ Best 성능
+#### <Best 성능>
 
 - Best R²: **0.9703**
 - Best Params:
@@ -131,7 +131,7 @@
   {'depth': 4, 'learning_rate': 0.0419998814673207, 'l2_leaf_reg': 1.4499985542901122}
   ```
 
-#### 🎯 Test R² (지표별 성능)
+#### <Test R² (지표별 성능)>
 
 | 결과지표             | R²     |
 | ---------------- | ------ |
@@ -152,12 +152,15 @@
 
 ---
 
-## 📄 참고 문헌
+## 외부 대용량 파일 다운로드
+
+이 프로젝트에서 사용된 `.db`, `.csv`, `.npy` 등의 대용량 파일은 GitHub 용량 제한으로 인해  
+아래 Google Drive 링크를 통해 별도로 제공
+
+👉 [Download external_data.zip (Google Drive)][([https://drive.google.com/file/d/1a2b3cXYZ/view?usp=sharing](https://drive.google.com/file/d/1_Iw_u2hCMIvgNgdS16fDgWrFgiXS5X2A/view?usp=sharing))](https://drive.google.com/file/d/1_Iw_u2hCMIvgNgdS16fDgWrFgiXS5X2A/view?usp=sharing)
+
+## 참고 문헌
 
 - RG Vink et al. *International Journal of Obesity*, 2017. "Adipose tissue gene expression is differentially regulated with different rates of weight loss..."
 
-## 🚀 프로젝트 by 권혜빈
-
-- 생물학 + 컴퓨터공학 복수전공
-- 의료 AI 및 유전체 기반 예측모델 연구 방향으로 확장 가능
 
